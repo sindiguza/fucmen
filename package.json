@@ -24,7 +24,7 @@
   "scripts": {
     "lint": "tslint --project .",
     "prebuild": "rimraf dist && rimraf docs",
-    "build": "cross-env NODE_ENV=production webpack --mode=production",
+    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider NODE_ENV=production webpack --mode=production",
     "build:dev": "webpack --mode=development",
     "prepush": "npm run build",
     "prepare": "npm run build"
@@ -38,13 +38,13 @@
   },
   "devDependencies": {
     "@types/colors": "*",
-    "@types/lodash": "*",
+    "@types/lodash": "^4.14.104",
     "@types/node-uuid": "*",
     "@types/webpack": "^4.4.11",
     "awesome-typescript-loader": "^5.2.1",
     "colors": "^1.3.2",
     "cross-env": "^5.2.0",
-    "lodash": "^4.17.10",
+    "lodash": "^4.17.21",
     "node-pack": "^0.1.3",
     "node-uuid": "^1.4.8",
     "rimraf": "^2.6.2",

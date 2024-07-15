@@ -302,7 +302,7 @@ export class MulticastNetwork extends EventEmitter {
       return Promise.resolve()
     }
     if (this.options.address.length === 0 || this.options.address === '0.0.0.0') {
-      const ifaces = _.flatten(_.values(os.networkInterfaces())).filter(x => x.family === 'IPv4' && !x.internal).map(x => x.address)
+      const ifaces = _.flatten(_.values(os.networkInterfaces())).filter((x: any) => x.family === 'IPv4' && !x.internal).map((x: any) => x.address)
       this.networks = ifaces.map((ifaddress) => new MulticastNetworkInternal(this.multicastAddress, this.ttl, { ...this.options, address: ifaddress }))
     } else {
       this.networks.push(new MulticastNetworkInternal(this.multicastAddress, this.ttl, this.options))
