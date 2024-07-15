@@ -398,7 +398,7 @@ export class DynamicUnicastNetwork extends Network {
 }
 
 function encrypt(data: Buffer, key: string) {
-  const cipher = crypto.createCipher('aes256', key)
+  const cipher = crypto.createCipheriv('aes256', crypto.randomBytes(32), Buffer.from(key, 'hex'))
   const buf = []
   buf.push(cipher.update(data))
   buf.push(cipher.final())
