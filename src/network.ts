@@ -12,7 +12,8 @@ export type NetworkOptions = {
   instanceUuid: string,
   address: string
   port: number
-  key: string | null
+  key: string
+  iv: string
   reuseAddr: boolean
   dictionary?: string[]
 }
@@ -23,6 +24,7 @@ export abstract class Network extends EventEmitter {
   private address: string
   private port: number
   private key: string | null
+  private iv: string
   private reuseAddr: boolean
   private instanceUuid: string
   private dictionary: any[]
@@ -33,6 +35,7 @@ export abstract class Network extends EventEmitter {
     this.address = options.address
     this.port = options.port
     this.key = options.key
+    this.iv = options.iv
     this.reuseAddr = options.reuseAddr
     this.instanceUuid = options.instanceUuid
     this.dictionary = _.uniq((options.dictionary || []).concat(['event', 'iid', 'hostName', 'data']))
@@ -137,7 +140,7 @@ export abstract class Network extends EventEmitter {
   private encode(data: any) {
     return new Promise<Buffer>((resolve, reject) => {
       try {
-        const tmp = this.key ? encrypt(Pack.encode(data, this.dictionary), this.key) : Pack.encode(data, this.dictionary)
+        const tmp = this.key ? encrypt(Pack.encode(data, this.dictionary), this.key, this.iv) : Pack.encode(data, this.dictionary)
         resolve(tmp)
       } catch (e) {
         reject(e)
@@ -151,7 +154,7 @@ export abstract class Network extends EventEmitter {
   private decode(data: Buffer, rinfo: dgram.RemoteInfo) {
     const decodeBuffer = (buf: Buffer) => {
       try {
-        const tmp = Pack.decode(this.key ? decrypt(buf, this.key) : buf, this.dictionary)
+        const tmp = Pack.decode(this.key ? decrypt(buf, this.key, this.iv) : buf, this.dictionary)
         tmp.iid = uuid.unparse(tmp.iid)
         return tmp
       } catch (e) {
@@ -397,16 +400,16 @@ export class DynamicUnicastNetwork extends Network {
   }
 }
 
-function encrypt(data: Buffer, key: string) {
-  const cipher = crypto.createCipheriv('aes256', key, crypto.randomBytes(32))
+function encrypt(data: Buffer, key: string, iv: string) {
+  const cipher = crypto.createCipheriv('aes256', key, Buffer.from(iv, 'hex'))
   const buf = []
   buf.push(cipher.update(data))
   buf.push(cipher.final())
   return Buffer.concat(buf)
 }
 
-function decrypt(data: Buffer, key: string) {
-  const decipher = crypto.createDecipher('aes256', key)
+function decrypt(data: Buffer, key: string, iv: string) {
+  const decipher = crypto.createDecipheriv('aes256', key, Buffer.from(iv, 'hex'))
   const buf = []
   buf.push(decipher.update(data))
   buf.push(decipher.final())

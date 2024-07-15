@@ -87,7 +87,8 @@ export class DiscoverOptions {
   mastersRequired?: number
   address?: string
   port?: number
-  key?: string
+  key: string
+  iv: string
   reuseAddr?: boolean
   dictionary?: string[]
   broadcast?: string
@@ -143,7 +144,8 @@ export class Discover extends EventEmitter {
     const settings = {
       address: options.address || '0.0.0.0',
       port: options.port || 12345,
-      key: options.key || null,
+      key: options.key,
+      iv: options.iv,
       reuseAddr: (options.reuseAddr === false) ? false : true,
       instanceUuid: this.instanceUuid,
       dictionary: (options.dictionary || []).concat(['isMaster', 'isMasterEligible', 'weight', 'prefMode', 'address', 'advertisement']).concat(reservedEvents)
